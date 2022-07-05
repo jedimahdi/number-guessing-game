@@ -1,0 +1,137 @@
+cabal-version:       3.0
+name:                guessing-game
+version:             0.0.0.0
+synopsis:            See README for more info
+description:
+    See README for more info.
+    See README.md for more details.
+license:             MIT
+license-file:        LICENSE
+author:              Mahdi Seyedan
+maintainer:          Mahdi Seyedan <seyedmahdiseydan78@yahoo.com>
+copyright:           2022 Mahdi Seyedan
+category:            Game
+build-type:          Simple
+extra-doc-files:     README.md
+                     CHANGELOG.md
+tested-with:         GHC == 8.10.7
+                     GHC == 9.0.2
+
+common common-options
+  build-depends:       base >= 4.14.3.0 && < 4.16
+                     , text
+                     , bytestring
+                     , websockets
+                     , async
+                     , containers
+                     , stm
+                     , aeson
+                     , random
+                     , network
+                     , warp
+                     , wai
+                     , wai-websockets
+                     , servant
+                     , servant-websockets
+                     , servant-server
+                     , servant-client
+                     , transformers
+                     , mtl
+                     , wai-cors
+                     , lens
+                     , generic-lens
+                     , unliftio
+                     , data-has
+                     , exceptions
+                     , case-insensitive
+
+  ghc-options:         -Wall
+                       -Wcompat
+                       -Widentities
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wredundant-constraints
+                       -Wnoncanonical-monad-instances
+                       -Wno-unused-imports
+                       -Wno-missing-export-lists
+
+  if impl(ghc >= 8.2)
+    ghc-options:       -fhide-source-paths
+  if impl(ghc >= 8.4)
+    ghc-options:       -Wpartial-fields
+  if impl(ghc >= 8.8)
+    ghc-options:       -Wmissing-deriving-strategies
+                       -fwrite-ide-info
+                       -hiedir=.hie
+  if impl(ghc >= 8.10)
+    ghc-options:       -Wunused-packages
+
+  default-language:    Haskell2010
+  default-extensions:
+      DataKinds
+      TypeOperators
+      BangPatterns
+      DeriveAnyClass
+      DeriveFoldable
+      DeriveFunctor
+      DeriveGeneric
+      DeriveTraversable
+      DerivingStrategies
+      DerivingVia
+      TypeApplications
+      ScopedTypeVariables
+      GADTs
+      KindSignatures
+      LambdaCase
+      NamedFieldPuns
+      OverloadedLabels
+      OverloadedStrings
+      PolyKinds
+      TypeFamilies
+      TypeFamilyDependencies
+      TupleSections
+      TypeApplications
+      RecordWildCards
+      DuplicateRecordFields
+      ConstraintKinds
+      FlexibleContexts
+      FlexibleInstances
+      RankNTypes
+      PatternSynonyms
+      FunctionalDependencies
+      ExistentialQuantification
+      ApplicativeDo
+
+
+
+library
+  import:              common-options
+  hs-source-dirs:      src
+  exposed-modules:     Domain
+                       Game
+                       Common
+                       Hubs
+                       Api
+                       Error
+
+executable guessing-game
+  import:              common-options
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  build-depends:       guessing-game
+  ghc-options:         -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
+
+test-suite guessing-game-test
+  import:              common-options
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       guessing-game
+                     , hspec
+                     , QuickCheck
+  build-tool-depends: hspec-discover:hspec-discover
+  ghc-options:         -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
