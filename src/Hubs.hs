@@ -2,29 +2,31 @@
 module Hubs where
 
 import           Common
-import           Control.Lens
-    ( _1, _2, at, cons, elemOf, filtered, folded, itoList, ix, over, sans, set, toListOf,
-    traverseOf, traversed, view, (%~), (.~), (^.), (^..), (^?) )
-import           Control.Monad.Catch  ( MonadThrow, throwM )
+import           Control.Lens         (_1, _2, at, cons, elemOf, filtered,
+                                       folded, itoList, ix, over, sans, set,
+                                       toListOf, traverseOf, traversed, view,
+                                       (%~), (.~), (^.), (^..), (^?))
+import           Control.Monad.Catch  (MonadThrow, throwM)
 import           Control.Monad.Reader
 import           Data.Aeson
-import           Data.ByteString      ( ByteString )
+import           Data.ByteString      (ByteString)
 import qualified Data.ByteString.Lazy as LBS
-import           Data.Foldable        ( traverse_ )
-import           Data.Has             ( Has, getter )
-import           Data.Map             ( Map )
+import           Data.Foldable        (traverse_)
+import           Data.Has             (Has, getter)
+import           Data.Map             (Map)
 import qualified Data.Map             as Map
-import           Data.Maybe           ( isNothing )
-import           Data.Text            ( Text )
+import           Data.Maybe           (isNothing)
+import           Data.Text            (Text)
 import qualified Data.Text.IO         as TIO
 import           Domain
 import           Error
-import           GHC.Generics         ( Generic )
-import           Network.WebSockets   ( ConnectionException (..) )
+import           GHC.Generics         (Generic)
+import           Network.WebSockets   (ConnectionException (..))
 import qualified Network.WebSockets   as WS
-import           Prelude              hiding ( max )
-import           UnliftIO             ( MonadUnliftIO )
-import           UnliftIO.Exception   ( catch )
+import           Prelude              hiding (max)
+import           UnliftIO             (MonadUnliftIO)
+import           UnliftIO.Concurrent  (forkIO)
+import           UnliftIO.Exception   (catch)
 import           UnliftIO.STM
 
 data Room = Room { channel    :: TChan ByteString
@@ -70,13 +72,18 @@ roomBroadcaster :: HubOperation k r m => k -> m ()
 roomBroadcaster roomId = do
   withRoomDo roomId (pure ()) $ \(room, roomState) -> do
       msg <- atomically $ readTChan (room ^. #channel)
-      if msg == "endBroadcast"
-         then pure ()
-         else do
-            clients <- toListOf (#clients . folded . filtered (not . view #isDisconnected) . #socket) <$> readTVarIO roomState
-            liftIO $ print msg
-            traverse_ (liftIO . flip WS.sendTextData msg) clients
-            roomBroadcaster roomId
+      unless (msg == "endBroadcast") $ do
+        clients <- toListOf (#clients . folded . filtered (not . view #isDisconnected) . #socket) <$> readTVarIO roomState
+        liftIO $ print msg
+        traverse_ (liftIO . flip WS.sendTextData msg) clients
+        roomBroadcaster roomId
+
+forkRoomBroadcaster :: HubOperation k r m => k -> m ()
+forkRoomBroadcaster roomId = do
+  _ <- forkIO $ do
+    roomBroadcaster roomId
+    removeRoom roomId
+  pure ()
 
 existsAt :: HubOperation k r m => k -> m Bool
 existsAt roomId =

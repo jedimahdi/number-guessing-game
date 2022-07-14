@@ -1,6 +1,6 @@
 module Common where
 
-import           Control.Monad.Catch ( Exception, MonadThrow, throwM )
+import           Control.Monad.Catch (Exception, MonadThrow, throwM)
 
 checkEither :: (MonadThrow m, Exception e) => Either a b -> (a -> e) -> m b
 checkEither (Right a) _ = return a

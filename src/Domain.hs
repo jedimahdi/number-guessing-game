@@ -2,9 +2,9 @@ module Domain where
 
 import           Data.Aeson
 import           Data.Generics.Labels ()
-import           Data.Text            ( Text )
+import           Data.Text            (Text)
 import           GHC.Generics
-import           Prelude              hiding ( id )
+import           Prelude              hiding (id)
 
 type Username = Text
 

@@ -1,17 +1,19 @@
 module Game where
 
 import           Common
-import           Control.Lens
-    ( at, cons, filtered, ix, over, set, toListOf, traverseOf, traversed, view, (%~), (.~), (^.),
-    (^..), (^?) )
-import           Control.Monad.Catch  ( MonadThrow, throwM )
+import           Control.Lens         (at, cons, filtered, ix, over, set,
+                                       toListOf, traverseOf, traversed, view,
+                                       (%~), (.~), (^.), (^..), (^?))
+import           Control.Monad.Catch  (MonadThrow, throwM)
 import           Control.Monad.Reader
-import           Data.Has             ( Has, getter )
-import           Data.Map             ( Map )
-import           Data.Maybe           ( isNothing )
+import           Data.Has             (Has, getter)
+import           Data.Map             (Map)
+import           Data.Maybe           (isNothing)
+import           Data.Text            (Text)
+import qualified Data.Text            as Text
 import           Domain
 import           Error
-import           Prelude              hiding ( id )
+import           Prelude              hiding (id)
 import           System.Random
 import           UnliftIO.STM
 
@@ -71,3 +73,10 @@ removeGame :: GameOperation r m => GameId -> m ()
 removeGame gameId = do
   gamesState <- asks (getter @GamesState)
   atomically $ modifyTVar gamesState (set (at gameId) Nothing)
+
+randomCode :: MonadIO m => m Text
+randomCode = liftIO $
+  Text.pack <$> replicateM 4 (randomRIO ('A', 'Z'))
+
+mkGameId :: MonadIO m => m GameId
+mkGameId = randomCode
