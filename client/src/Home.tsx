@@ -9,18 +9,11 @@ import {
   Flex,
   Text,
   Button,
-  Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
-  TableCaption,
-  TableContainer,
   Box,
   Stack,
   IconButton,
+  Input,
+  FormLabel,
 } from "@chakra-ui/react";
 
 function Home() {
@@ -32,18 +25,6 @@ function Home() {
   useEffect(() => {
     fetchRooms();
   }, []);
-
-  function onNewGame() {
-    fetch("http://localhost:5000/games", { method: "POST" })
-      .then((res) => res.json())
-      .then((res) => z.object({ gameId: z.string() }).parse(res))
-      .then((res) =>
-        setRooms((rooms) => [
-          ...rooms,
-          { roomId: res.gameId, maxClients: 3, clientsCount: 0 },
-        ])
-      );
-  }
 
   function fetchRooms() {
     fetch("http://localhost:5000/rooms")
@@ -62,6 +43,15 @@ function Home() {
   return (
     <Flex justifyContent="center" alignItems="center" flexDirection="column">
       <Box width="50%">
+        <FormLabel color="white">Username</FormLabel>
+        <Input
+          value={username}
+          color="white"
+          placeholder="Username"
+          onChange={(ev) => setUsername(ev.target.value)}
+        />
+      </Box>
+      <Box width="50%" marginTop="25">
         <Box
           display="flex"
           flexDirection="row"
@@ -69,9 +59,9 @@ function Home() {
           marginBottom="20px"
         >
           <Heading color="white">Lobby</Heading>
-          <Link to="/add-new-book">
-            <Button paddingX="3rem">Add</Button>
-          </Link>
+          <Button paddingX="3rem" onClick={fetchRooms}>
+            Refresh
+          </Button>
         </Box>
 
         <Box color="white" px="15px" py="15px">
@@ -111,17 +101,6 @@ function Home() {
             ))}
           </Stack>
         </Box>
-
-        <Heading>Lobby</Heading>
-        <div>
-          <input
-            type="text"
-            value={username}
-            onChange={(ev) => setUsername(ev.target.value)}
-          />
-          <button onClick={onNewGame}>New game</button>
-          <button onClick={fetchRooms}>Refresh lobby</button>
-        </div>
       </Box>
     </Flex>
   );

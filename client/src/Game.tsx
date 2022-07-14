@@ -1,4 +1,14 @@
 import { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  Text,
+} from "@chakra-ui/react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import useWebSocket from "react-use-websocket";
 import { Message } from "./types";
@@ -95,33 +105,39 @@ function Game() {
   }
 
   return (
-    <div>
-      <div>
-        <h2>Game</h2>
+    <Flex
+      justifyContent="center"
+      alignItems="center"
+      flexDirection="column"
+      color="white"
+    >
+      <Box width="50%"></Box>
+      <Box>
+        <Heading>Game</Heading>
         <Link to="/">Home</Link>
-      </div>
+      </Box>
 
-      {state.phase === "idle" && <div>Connecting...</div>}
+      {state.phase === "idle" && <Box>Connecting...</Box>}
       {state.phase === "waiting" && (
-        <div>
-          <h4>Waiting for players to connect</h4>
-          <h4>{state.users.size}/3</h4>
-        </div>
+        <Box>
+          <Heading>Waiting for players to connect</Heading>
+          <Heading>{state.users.size}/3</Heading>
+        </Box>
       )}
       {state.phase === "error" && (
-        <div>GO BACK TO HOME. ERROR HAPPENED WTF!!!!!</div>
+        <Box>GO BACK TO HOME. ERROR HAPPENED WTF!!!!!</Box>
       )}
       {state.phase === "started" && (
         <GameArea game={state.game} username={username} onGuess={onGuess} />
       )}
       {state.phase === "ended" && (
-        <div>
-          <h2>Game ended</h2>
-          <p>{state.winner} won the game.</p>
-          <p>correct answer was number {state.answer}.</p>
-        </div>
+        <Box>
+          <Heading>Game ended</Heading>
+          <Text>{state.winner} won the game.</Text>
+          <Text>correct answer was number {state.answer}.</Text>
+        </Box>
       )}
-    </div>
+    </Flex>
   );
 }
 
@@ -139,38 +155,40 @@ function GameArea({
   const isYourTurn = username === game.turn;
 
   return (
-    <div>
-      <div>
-        <h2>Game ID: {game.id}</h2>
-        <h2>Username: {username}</h2>
-      </div>
-      <div>
+    <Box display="flex" flexDirection="column">
+      <Heading color="white">Game {game.id}</Heading>
+      <Heading color="white">Username: {username}</Heading>
+
+      <Box>
         {isYourTurn && <p>Its your turn</p>}
         {!isYourTurn && <p>Waiting for {game.turn} to guess.</p>}
 
-        <input
+        <Input
           type="number"
           value={guess}
           onChange={(ev) => setGuess(parseInt(ev.target.value))}
         />
-        <button onClick={() => onGuess(guess)}>Guess</button>
-      </div>
-      <div>
-        <h3>Players</h3>
-        {game.players.map((player) => (
-          <div key={player}>{player}</div>
-        ))}
-      </div>
+        <Button variant="outline" onClick={() => onGuess(guess)}>
+          Guess
+        </Button>
+      </Box>
 
-      <div>
-        <h3>Guess Log</h3>
-        {game.guessesLog.map((guess) => (
-          <div key={guess.number}>
-            user {guess.username} guessed {guess.number}
-          </div>
+      <Box>
+        <Heading>Players</Heading>
+        {game.players.map((player) => (
+          <Box key={player}>{player}</Box>
         ))}
-      </div>
-    </div>
+      </Box>
+
+      <Box>
+        <Heading>Guess Log</Heading>
+        {game.guessesLog.map((guess) => (
+          <Box key={guess.number}>
+            user {guess.username} guessed {guess.number}
+          </Box>
+        ))}
+      </Box>
+    </Box>
   );
 }
 

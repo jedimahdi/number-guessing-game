@@ -45,7 +45,7 @@ const Navbar = () => {
             Lobby
           </Button>
         </Link>
-        <Link to="/">
+        <Link to="/add-game">
           <Button
             fontWeight={["medium", "medium", "medium"]}
             fontSize={["xs", "sm", "lg", "xl"]}
